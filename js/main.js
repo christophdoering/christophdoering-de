@@ -67,31 +67,40 @@ if (!reduce) $$(".track").forEach((track) => {
   track.append(...copy.childNodes);
 });
 
-/* Halftone im Hero: Rasterpunkte wachsen zur Maus hin (nach Subframe „Halftone sculpture“) */
+/* Pfeil aus Rasterpunkten im Hero: eine Welle läuft nach unten, die Punkte wachsen zur Maus hin
+   (nach Subframe „Halftone sculpture“, hier auf ein Zeichen reduziert) */
 const canvas = $(".hero canvas");
-if (canvas && !reduce) {
+if (canvas) {
   const ctx = canvas.getContext("2d");
+  const ROWS = [ // Pixelmaske des ↓, 9 Spalten breit
+    "...###...", "...###...", "...###...", "...###...", "...###...", "...###...",
+    "#########", ".#######.", "..#####..", "...###...", "....#....",
+  ];
+  const cells = ROWS.flatMap((r, y) => [...r].flatMap((c, x) => (c === "#" ? [{ x, y }] : [])));
   const m = { x: -1e4, y: -1e4 };
-  let w, h, dpr, raf, t0 = performance.now();
+  let w, h, step, ox, oy, raf, t0 = performance.now();
+  const draw = (now) => {
+    const t = (now - t0) / 1000;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = getComputedStyle(canvas).color;
+    for (const c of cells) {
+      const x = ox + c.x * step, y = oy + c.y * step;
+      const wave = reduce ? 1 : 0.65 + 0.35 * Math.sin(t * 2.2 - c.y * 0.55); // läuft nach unten
+      const near = Math.exp(-((x - m.x) ** 2 + (y - m.y) ** 2) / (step * step * 6));
+      const r = step * 0.17 * wave + near * step * 0.3;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    }
+    if (!reduce) raf = requestAnimationFrame(draw);
+  };
   const size = () => {
-    dpr = Math.min(devicePixelRatio, 2);
+    const dpr = Math.min(devicePixelRatio, 2);
     w = canvas.clientWidth; h = canvas.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  };
-  const draw = (now) => {
-    const t = (now - t0) / 1000, step = 18, r0 = 1.2;
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = getComputedStyle(canvas).color;
-    for (let y = step / 2; y < h; y += step)
-      for (let x = step / 2; x < w; x += step) {
-        const dx = x - m.x, dy = y - m.y;
-        const near = Math.exp(-(dx * dx + dy * dy) / 40000);
-        const wave = 0.5 + 0.5 * Math.sin(x * 0.01 + y * 0.013 + t);
-        const r = r0 * (0.4 + 0.6 * wave) + near * 6.5;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
-      }
-    raf = requestAnimationFrame(draw);
+    const top = 90, bottom = $(".hero h1").offsetTop; // Pfeil mittig im Raum über der Headline
+    step = Math.min(((bottom - top) * 0.7) / ROWS.length, w * 0.06, 44);
+    ox = w / 2 - 4 * step; oy = (top + bottom) / 2 - (ROWS.length - 1) * step / 2;
+    if (reduce) draw(performance.now());
   };
   size();
   addEventListener("resize", size);
@@ -99,7 +108,7 @@ if (canvas && !reduce) {
     const b = canvas.getBoundingClientRect(); m.x = e.clientX - b.left; m.y = e.clientY - b.top;
   });
   canvas.parentElement.addEventListener("pointerleave", () => { m.x = m.y = -1e4; });
-  new IntersectionObserver(([e]) => {
+  if (!reduce) new IntersectionObserver(([e]) => {
     cancelAnimationFrame(raf);
     if (e.isIntersecting) raf = requestAnimationFrame(draw);
   }).observe(canvas);

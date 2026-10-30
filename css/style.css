@@ -163,16 +163,8 @@ main { position: relative; z-index: 1; background: var(--paper); }
       animation-range: normal, exit 0% exit 100%;
     }
   }
-  .meta {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-top: clamp(24px, 4vw, 56px); padding-top: 1rem;
-    border-top: 1px solid var(--line); color: var(--mute);
-    .label { margin: 0; }
-  }
   @supports (animation-timeline: view()) {
-    h1 { animation: tilt linear both; }
-    .meta { animation: fade linear both; }
-    h1, .meta { animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    h1 { animation: tilt linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
   }
 }
 html:has(.intro) .hero .line { --d: 2.6s; }
@@ -356,5 +348,4 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
   .intro { display: none; }
   .reading { height: auto; .word { opacity: 1; b { font-weight: 700; } } }
   .track { flex-wrap: wrap; width: auto; white-space: normal; padding: 0 var(--gutter); > * { opacity: 1; } }
-  .hero canvas { display: none; }
 }
