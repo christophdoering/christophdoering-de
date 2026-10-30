@@ -299,21 +299,19 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
 /* ---------- Fuß mit Riesenlauftypo ---------- */
 .marquee { overflow: hidden; padding: clamp(40px, 6vw, 100px) 0 clamp(24px, 3vw, 48px); }
 .track {
-  display: flex; gap: 0.5em; width: max-content;
+  display: flex; gap: 1em; width: max-content;
   font-size: clamp(4rem, 15vw, 17rem);
+  font-feature-settings: "ss09" 1, "ss10" 1; /* Schrägstrich durch die Versalien, keine Trenner */
   line-height: 1.3; /* Schrägstriche ragen über Versalhöhe und unter die Grundlinie */
   white-space: nowrap;
   animation: marquee 22s linear infinite;
   > * { opacity: 0.35; transition: opacity 0.3s; }
   a:hover { opacity: 1; }
-  > *::after { content: "/"; margin-left: 0.5em; opacity: 0.4; }
 }
 .marquee:hover .track { animation-play-state: paused; }
 .foot {
   position: sticky; bottom: 0; z-index: 0; /* liegt hinter der Seite, die darüber wegscrollt */
   overflow: hidden; padding-bottom: var(--gutter);
-  .track { gap: 1em; font-feature-settings: "ss09" 1, "ss10" 1; /* Schrägstrich durch die Versalien */ }
-  .track > *::after { content: none; }
   .line {
     padding: 0 var(--gutter); font-size: 0.85rem; color: var(--mute);
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
