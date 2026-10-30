@@ -72,15 +72,13 @@ if (!reduce) $$(".track").forEach((track) => {
 const canvas = $(".hero canvas");
 if (canvas) {
   const ctx = canvas.getContext("2d");
-  const ROWS = [ // Pixelmaske des ↓, 9 Spalten breit
-    "...###...", "...###...", "...###...", "...###...",
-    "#########", ".#######.", "..#####..", "...###...", "....#....",
-  ];
   const STEP = 18, m = { x: -1e4, y: -1e4 };
-  let w, h, k, ax, ay, raf, t0 = performance.now();
+  let w, h, k, cx, ay, raf, t0 = performance.now();
+  // Pfeil in Rasterpunkten: Schaft 3k breit und 4k hoch, Spitze 9k breit und 5k hoch, läuft auf einen Punkt zu
   const inArrow = (gx, gy) => {
-    const cx = Math.floor((gx - ax) / k), cy = Math.floor((gy - ay) / k);
-    return ROWS[cy]?.[cx] === "#";
+    const u = Math.abs(gx - cx), v = gy - ay;
+    if (v < 0 || v > 9 * k) return false;
+    return v < 4 * k ? u <= 1.5 * k : u <= 4.5 * k * (9 * k - v) / (5 * k) + 0.01;
   };
   const draw = (now) => {
     const t = (now - t0) / 1000;
@@ -90,9 +88,10 @@ if (canvas) {
       for (let gx = 0, x = STEP / 2; x < w; gx++, x += STEP) {
         let r;
         if (inArrow(gx, gy)) {
-          const wave = reduce ? 1 : 0.7 + 0.3 * Math.sin(t * 2.2 - gy * 0.35); // läuft nach unten
+          // Puls, der nach unten durch den Pfeil läuft
+          const p = reduce ? 0.5 : (1 + Math.sin(t * 3 - gy * 0.45)) / 2;
           const near = Math.exp(-((x - m.x) ** 2 + (y - m.y) ** 2) / 40000);
-          r = STEP * 0.2 * wave + near * 6;
+          r = STEP * (0.14 + 0.18 * p * p * p) + near * 6;
         } else {
           const wave = reduce ? 0.5 : 0.5 + 0.5 * Math.sin(x * 0.01 + y * 0.013 + t);
           r = 1.2 * (0.4 + 0.6 * wave);
@@ -106,11 +105,10 @@ if (canvas) {
     w = canvas.clientWidth; h = canvas.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // Pfeil: jede Maskenzelle ist k×k Rasterpunkte, mittig im Raum über der Headline
-    const top = 90, bottom = $(".hero h1").offsetTop;
-    k = Math.max(1, Math.min(Math.round((bottom - top) * 1.05 / ROWS.length / STEP), Math.floor(w * 0.1 / STEP)));
-    ax = Math.round(w / 2 / STEP) - Math.floor(9 * k / 2);
-    ay = Math.round((top + bottom) / 2 / STEP) - Math.floor(ROWS.length * k / 2);
+    const top = 90, bottom = $(".hero h1").offsetTop; // Raum über der Headline
+    k = Math.max(1, Math.min(Math.round((bottom - top) * 1.05 / 9 / STEP), Math.floor(w * 0.1 / STEP)));
+    cx = Math.round(w / 2 / STEP);
+    ay = Math.round((top + bottom) / 2 / STEP) - Math.round(4.5 * k);
     if (reduce) draw(performance.now());
   };
   size();
