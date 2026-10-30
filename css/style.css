@@ -312,6 +312,8 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
 .foot {
   position: sticky; bottom: 0; z-index: 0; /* liegt hinter der Seite, die darüber wegscrollt */
   overflow: hidden; padding-bottom: var(--gutter);
+  .track { gap: 1em; font-feature-settings: "ss09" 1, "ss10" 1; /* Schrägstrich durch die Versalien */ }
+  .track > *::after { content: none; }
   .line {
     padding: 0 var(--gutter); font-size: 0.85rem; color: var(--mute);
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
