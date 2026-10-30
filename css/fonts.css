@@ -1,0 +1,45 @@
+/* Reapar — Inter 4.1 mit abgekanteten Ecken, von Christoph Döring. SIL OFL 1.1 */
+
+@font-face {
+  font-family: "Reapar Display";
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/ReaparDisplay-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reapar Display";
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/ReaparDisplay-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reapar Display";
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/ReaparDisplay-Light.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reapar";
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/Reapar-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reapar";
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/Reapar-Medium.woff2") format("woff2");
+}
+/* Uniwidth: alle Gewichte gleich breit, Gewichtswechsel ohne Umbruch */
+@font-face {
+  font-family: "Reapar Uniwidth";
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/ReaparUniwidth-Light.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Reapar Uniwidth";
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/ReaparUniwidth-Bold.woff2") format("woff2");
+}

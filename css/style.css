@@ -1,0 +1,355 @@
+/* christophdoering.de — Schwarz, Weiß, Reapar. Hell und dunkel folgen dem System. */
+
+:root {
+  color-scheme: light dark;
+  --ink: light-dark(#0b0b0b, #f2f2ee);
+  --paper: light-dark(#f6f6f3, #0b0b0b);
+  --mute: color-mix(in oklab, var(--ink) 55%, transparent);
+  --line: color-mix(in oklab, var(--ink) 14%, transparent);
+  --gutter: clamp(16px, 4vw, 56px);
+  --block: clamp(80px, 12vw, 180px);
+  --display: "Reapar Display", "Inter", system-ui, sans-serif;
+  --text: "Reapar", "Inter", system-ui, sans-serif;
+  --uni: "Reapar Uniwidth", "Reapar", "Inter", system-ui, sans-serif;
+  --slash: "ss13" 1; /* Reapar: Schrägstrich am ersten und letzten Buchstaben */
+  --ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); -webkit-text-size-adjust: 100%; }
+html:has(.intro) { overflow: hidden; }
+
+body {
+  margin: 0;
+  font: 400 clamp(16px, 1.1vw, 19px) / 1.45 var(--text);
+  letter-spacing: -0.005em;
+  font-feature-settings: "ss09" 1; /* Reapar: Quadrat-Enden */
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+p, h1, h2, h3, ul { margin: 0; }
+h1, h2, h3 { font-weight: 700; }
+ul { padding: 0; list-style: none; }
+
+/* Typo-Rollen */
+.giant {
+  font-family: var(--display);
+  font-weight: 700;
+  font-feature-settings: "ss09" 1, var(--slash);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+}
+.thin {
+  font-family: var(--display);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+.label { font-size: 0.85rem; color: var(--mute); margin-bottom: 1.5rem; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.u {
+  text-decoration: underline 1px var(--line);
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color 0.3s;
+  &:hover { text-decoration-color: currentColor; }
+}
+
+main { position: relative; z-index: 1; background: var(--paper); }
+
+/* Inverse Abschnitte */
+.inv { background: var(--ink); color: var(--paper); }
+
+/* Link mit Slide-Hover: Text hebt sich, Kopie rückt nach */
+.lnk {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  > span {
+    position: relative; display: inline-block;
+    transition: transform 0.5s var(--ease);
+    &::after { content: attr(data-text); position: absolute; left: 0; top: 100%; }
+  }
+  &:hover > span { transform: translateY(-100%); }
+}
+
+/* Weich einblenden, scroll-gebunden */
+@supports (animation-timeline: view()) {
+  .rise {
+    animation: rise linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 60%;
+  }
+}
+@keyframes rise { from { opacity: 0; translate: 0 20%; filter: blur(10px); } }
+@keyframes blur-in { from { opacity: 0; translate: 0 20%; filter: blur(10px); } }
+@keyframes drift { to { transform: translateX(var(--drift, -5%)); } }
+
+/* ---------- Intro: Logo erscheint, dann Zoom in den Stamm des D (Mark Focus) ---------- */
+.defs { position: absolute; width: 0; height: 0; }
+.logo { display: block; fill: currentColor; aspect-ratio: 418 / 234; }
+.intro {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  background: var(--ink); color: var(--paper);
+  animation: intro-out 0.8s var(--ease) 2.7s both;
+  .logo {
+    width: clamp(140px, 32vw, 380px);
+    transform-origin: center;
+    animation: logo-in 1s var(--out) 0.2s both, logo-zoom 1.4s var(--ease) 2s both;
+  }
+}
+@keyframes logo-in { from { opacity: 0; translate: 0 24px; } }
+@keyframes logo-zoom { to { scale: 40; } }
+@keyframes intro-out { to { opacity: 0; visibility: hidden; } }
+
+/* ---------- Cursor ---------- */
+.cursor {
+  position: fixed; left: -7px; top: -7px; z-index: 60;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; mix-blend-mode: difference;
+  pointer-events: none; opacity: 0;
+  translate: var(--x, 0) var(--y, 0);
+  transition: scale 0.35s var(--ease), opacity 0.3s;
+  &.is-on { opacity: 1; }
+  &.is-link { scale: 4.5; }
+  @media (hover: none), (pointer: coarse) { display: none; }
+}
+
+/* ---------- Kopf ---------- */
+.top {
+  position: fixed; z-index: 40; inset: 0 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: clamp(14px, 2vw, 28px) var(--gutter);
+  mix-blend-mode: difference; color: #fff;
+  .mark { display: flex; align-items: center; gap: 0.9em; }
+  .logo { height: clamp(22px, 2.6vw, 30px); }
+  .wordmark {
+    font-size: 0.8rem; line-height: 1.25; letter-spacing: 0;
+    animation: fade-in 0.8s var(--out) both, fade linear both; /* nach dem Intro ein, beim Scrollen aus */
+    animation-timeline: auto, scroll();
+    animation-range: normal, 0 300px;
+    b { font-weight: 500; }
+    @media (width < 640px) { display: none; }
+  }
+  nav { display: flex; gap: clamp(16px, 2.5vw, 40px); font-size: 0.95rem; }
+}
+
+/* ---------- Hero mit Halftone-Raster ---------- */
+.hero {
+  position: relative; isolation: isolate;
+  min-height: 100svh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 var(--gutter) var(--gutter);
+  perspective: 1200px;
+  canvas { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; }
+  h1 {
+    display: flex; flex-direction: column; align-items: flex-start;
+    transform-origin: 50% 100%;
+    > .giant { font-size: clamp(2.8rem, 10vw, 13rem); line-height: 1; }
+    > .giant + .giant { padding-left: 0.42em; --drift: 5%; }
+    .hero__name {
+      font: 300 clamp(1.4rem, 2.6vw, 2.6rem) / 1.1 var(--display);
+      letter-spacing: -0.02em; margin-bottom: 0.6em;
+    }
+  }
+  .line { animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) calc(var(--d, 0s) + var(--i) * 0.1s) both; }
+  @supports (animation-timeline: view()) {
+    h1 > .giant {
+      animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) calc(var(--d, 0s) + var(--i) * 0.1s) both, drift linear both;
+      animation-timeline: auto, view();
+      animation-range: normal, exit 0% exit 100%;
+    }
+  }
+  .meta {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-top: clamp(24px, 4vw, 56px); padding-top: 1rem;
+    border-top: 1px solid var(--line); color: var(--mute);
+    .label { margin: 0; }
+  }
+  @supports (animation-timeline: view()) {
+    h1 { animation: tilt linear both; }
+    .meta { animation: fade linear both; }
+    h1, .meta { animation-timeline: view(); animation-range: exit 0% exit 100%; }
+  }
+}
+html:has(.intro) .hero .line { --d: 2.6s; }
+html:has(.intro) .wordmark { animation-delay: 3.2s; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes tilt { to { transform: rotateX(38deg) translate3d(0, -60px, -200px); opacity: 0; } }
+@keyframes fade { 60%, to { opacity: 0; } }
+
+/* ---------- Lesetext: Wörter werden aktiv, Wortanfänge fett (Bionic) ---------- */
+.reading {
+  height: 220vh;
+  > div {
+    position: sticky; top: 0; min-height: 100svh;
+    display: grid; place-items: center; padding: 0 var(--gutter);
+  }
+  p {
+    font: 300 clamp(1.5rem, 3.6vw, 3.6rem) / 1.18 var(--uni);
+    letter-spacing: -0.02em; max-width: 24em; text-wrap: pretty;
+  }
+  .word { display: inline-block; opacity: 0.22; transition: opacity 0.4s; }
+  .word b { font-weight: 300; }
+  .word.is-on { opacity: 1; b { font-weight: 700; } }
+}
+
+/* ---------- Zwei Rollen ---------- */
+.roles {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: clamp(40px, 6vw, 120px);
+  padding: var(--block) var(--gutter);
+  border-top: 1px solid var(--line);
+  h2 { font-size: clamp(1.7rem, 3.2vw, 3.2rem); margin-bottom: 1.25rem; }
+  p:not(.label) { max-width: 36em; color: var(--mute); }
+}
+
+/* ---------- Folio-Stapel: Karten bleiben kleben und treten zurück ---------- */
+.folios {
+  padding: var(--block) var(--gutter) 0;
+  > h2 { font-size: clamp(3rem, 10vw, 11rem); margin-bottom: clamp(40px, 6vw, 90px); }
+  .slot { height: 120vh; view-timeline: --slot block; }
+  .slot:last-child { height: auto; padding-bottom: var(--block); }
+  .folio {
+    position: sticky; top: 10vh;
+    min-height: 80vh;
+    display: grid; grid-template-rows: auto 1fr auto;
+    gap: 2rem; padding: clamp(24px, 3vw, 48px);
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line);
+    transform-origin: 50% 0;
+    .num { font-size: 0.78rem; color: var(--mute); }
+    h3 { font-size: clamp(2.4rem, 7vw, 7rem); align-self: end; }
+    p:not(.num):not(.tags) { max-width: 30em; color: var(--mute); font-size: clamp(1rem, 1.4vw, 1.3rem); }
+    .tags { font-size: 0.85rem; color: var(--mute); }
+    footer { display: flex; justify-content: space-between; align-items: end; gap: 2rem; flex-wrap: wrap; }
+  }
+  @supports (animation-timeline: view()) {
+    .slot:not(:last-child) .folio {
+      animation: recede linear both;
+      animation-timeline: --slot;
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+@keyframes recede { to { scale: 0.92; opacity: 0.2; filter: blur(2px); } }
+
+/* ---------- Leistungen und Expertise: Wörter als Tabs, immer ein Beispiel sichtbar ---------- */
+.skills {
+  padding: var(--block) var(--gutter);
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 0.2em 0.5em;
+    font: 600 clamp(1.8rem, 4vw, 4.5rem) / 1.05 var(--display);
+    letter-spacing: -0.03em;
+    li + li::before { content: "/"; margin-right: 0.5em; color: var(--line); }
+    button {
+      all: unset; cursor: pointer; color: var(--mute); transition: color 0.3s;
+      &:hover, &:focus-visible { color: var(--ink); }
+      &[aria-selected="true"] { color: var(--ink); }
+    }
+  }
+  .panel {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: var(--gutter); align-items: start;
+    margin-top: clamp(32px, 5vw, 72px); padding-top: 1.5rem; border-top: 1px solid var(--line);
+    p { max-width: 32em; color: var(--mute); font-size: clamp(1rem, 1.4vw, 1.3rem); }
+    small { display: block; margin-top: 1.5rem; font-size: 0.85rem; }
+    &[hidden] { display: none; }
+  }
+  .sample { position: relative; aspect-ratio: 1; max-width: 480px; }
+  .sample > svg { width: 100%; height: 100%; display: block; touch-action: none; overflow: visible; }
+  /* Bezier (Vector handles) */
+  .path { fill: none; stroke: currentColor; stroke-width: 10; stroke-linecap: square; }
+  .arm { stroke: var(--mute); stroke-width: 1; stroke-dasharray: 3 3; }
+  .anchor { fill: currentColor; }
+  .handle {
+    fill: var(--paper); stroke: currentColor; stroke-width: 1.5; cursor: grab; transition: r 0.2s;
+    &:hover, &:focus-visible { r: 14; outline: none; }
+    &:active { cursor: grabbing; }
+  }
+  /* Zeichenraster */
+  .grid {
+    .cell { fill: none; stroke: var(--line); stroke-width: 0.75; }
+    .stroke { fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: square; stroke-linejoin: miter; }
+    .dot { fill: var(--paper); stroke: var(--mute); stroke-width: 0.75; cursor: crosshair; transition: r 0.15s; r: 2.2; }
+    .dot:hover { r: 4; stroke: currentColor; }
+    .dot.on { fill: currentColor; stroke: currentColor; }
+    .dot.arc { fill: var(--paper); stroke: currentColor; stroke-width: 1.5; }
+  }
+  .clear {
+    position: absolute; right: 0; top: -44px; width: 36px; height: 36px; padding: 8px;
+    background: none; border: 0; color: var(--mute); cursor: pointer;
+    &:hover { color: var(--ink); }
+  }
+}
+
+/* ---------- Kontakt ---------- */
+.contact {
+  padding: var(--block) var(--gutter);
+  border-top: 1px solid var(--line);
+  .mail {
+    display: inline-block;
+    font-feature-settings: "ss09" 1; /* ohne Schrägstriche, sonst zerfällt die Adresse */
+    font-size: clamp(2.4rem, 9vw, 10rem);
+    overflow-wrap: anywhere; transition: opacity 0.3s;
+    &:hover { opacity: 0.5; }
+  }
+  .more { margin-top: 2rem; color: var(--mute); }
+}
+
+/* ---------- Fuß mit Riesenlauftypo ---------- */
+.marquee { overflow: hidden; padding: clamp(40px, 6vw, 100px) 0 clamp(24px, 3vw, 48px); }
+.track {
+  display: flex; gap: 0.5em; width: max-content;
+  font-size: clamp(4rem, 15vw, 17rem);
+  line-height: 1.3; /* Schrägstriche ragen über Versalhöhe und unter die Grundlinie */
+  white-space: nowrap;
+  animation: marquee 48s linear infinite;
+  > * { opacity: 0.35; transition: opacity 0.3s; }
+  a:hover { opacity: 1; }
+  > *::after { content: "/"; margin-left: 0.5em; opacity: 0.4; }
+}
+.marquee:hover .track { animation-play-state: paused; }
+.foot {
+  position: sticky; bottom: 0; z-index: 0; /* liegt hinter der Seite, die darüber wegscrollt */
+  overflow: hidden; padding-bottom: var(--gutter);
+  .line {
+    padding: 0 var(--gutter); font-size: 0.85rem; color: var(--mute);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+}
+@keyframes marquee { to { translate: -50% 0; } }
+
+/* ---------- Danke-Seite ---------- */
+.thanks .marquee { margin: 0 calc(-1 * var(--gutter)) clamp(24px, 4vw, 56px); padding: 0; color: var(--mute); .track > * { opacity: 1; } }
+.page {
+  padding: clamp(120px, 18vw, 240px) var(--gutter) var(--block); max-width: 1100px;
+  h1 { font-size: clamp(3rem, 12vw, 12rem); margin-bottom: clamp(40px, 6vw, 90px); }
+  .lede { font-size: clamp(1.1rem, 1.6vw, 1.4rem); max-width: 34em; color: var(--mute); margin-bottom: var(--block); }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.6rem); margin: var(--block) 0 1.5rem; }
+  .credits li {
+    display: grid; grid-template-columns: minmax(160px, 0.4fr) 1fr; gap: 1rem 2rem;
+    padding: 1.5rem 0; border-top: 1px solid var(--line);
+    &:last-child { border-bottom: 1px solid var(--line); }
+    @media (width < 600px) { grid-template-columns: 1fr; }
+  }
+  .credits h3 { font-size: 1.4rem; }
+  .credits p { color: var(--mute); }
+  .credits a.u { color: var(--ink); }
+}
+
+/* Testknopf: Intro erneut abspielen (vor dem Livegang entfernen) */
+.dev {
+  position: fixed; right: 0; top: 50%; translate: 0 -50%; z-index: 45;
+  padding: 0.5em 0.9em; font: 500 0.8rem var(--text);
+  background: var(--ink); color: var(--paper); border: 0; cursor: pointer; opacity: 0.6;
+  &:hover { opacity: 1; }
+}
+
+/* ---------- Bewegung reduzieren ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
+  .intro { display: none; }
+  .reading { height: auto; .word { opacity: 1; b { font-weight: 700; } } }
+  .track { flex-wrap: wrap; width: auto; white-space: normal; padding: 0 var(--gutter); > * { opacity: 1; } }
+  .hero canvas { display: none; }
+}
