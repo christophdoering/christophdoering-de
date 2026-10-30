@@ -72,6 +72,7 @@ if (!reduce) $$(".track").forEach((track) => {
 const canvas = $(".hero canvas");
 if (canvas) {
   const ctx = canvas.getContext("2d");
+  const hero = canvas.closest(".hero");
   const STEP = 18, m = { x: -1e4, y: -1e4 };
   let w, h, k, cx, ay, raf, t0 = performance.now();
   // Pfeil in Rasterpunkten: Schaft 3k breit und 4k hoch, Spitze 9k breit und 5k hoch, läuft auf einen Punkt zu
@@ -82,9 +83,16 @@ if (canvas) {
   };
   const draw = (now) => {
     const t = (now - t0) / 1000;
+    // Scrollfortschritt der Bühne: Punkte schrumpfen von der untersten Reihe nach oben weg
+    const b = hero.getBoundingClientRect();
+    const p = Math.min(1, Math.max(0, -b.top / (b.height - innerHeight)));
+    const rows = h / STEP, soft = 0.3;
     ctx.clearRect(0, 0, w, h);
+    if (p >= 1) { if (!reduce) raf = requestAnimationFrame(draw); return; }
     ctx.fillStyle = getComputedStyle(canvas).color;
-    for (let gy = 0, y = STEP / 2; y < h; gy++, y += STEP)
+    for (let gy = 0, y = STEP / 2; y < h; gy++, y += STEP) {
+      const keep = 1 - Math.min(1, Math.max(0, (p * (1 + soft) - (1 - gy / rows)) / soft));
+      if (keep <= 0) continue;
       for (let gx = 0, x = STEP / 2; x < w; gx++, x += STEP) {
         let r;
         if (inArrow(gx, gy)) {
@@ -96,8 +104,9 @@ if (canvas) {
           const wave = reduce ? 0.5 : 0.5 + 0.5 * Math.sin(x * 0.01 + y * 0.013 + t);
           r = 1.2 * (0.4 + 0.6 * wave);
         }
-        ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, r * keep, 0, 7); ctx.fill();
       }
+    }
     if (!reduce) raf = requestAnimationFrame(draw);
   };
   const size = () => {
@@ -118,7 +127,8 @@ if (canvas) {
     const b = canvas.getBoundingClientRect(); m.x = e.clientX - b.left; m.y = e.clientY - b.top;
   });
   canvas.parentElement.addEventListener("pointerleave", () => { m.x = m.y = -1e4; });
-  if (!reduce) new IntersectionObserver(([e]) => {
+  if (reduce) addEventListener("scroll", () => draw(performance.now()), { passive: true });
+  else new IntersectionObserver(([e]) => {
     cancelAnimationFrame(raf);
     if (e.isIntersecting) raf = requestAnimationFrame(draw);
   }).observe(canvas);
