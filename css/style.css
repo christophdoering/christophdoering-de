@@ -139,7 +139,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
 
 /* ---------- Hero mit Halftone-Raster ---------- */
 .hero {
-  height: 200svh; /* Bühne bleibt eine Bildschirmhöhe lang stehen, Raster und Typo lösen sich auf */
+  height: 150svh; /* Bühne steht eine halbe Bildschirmhöhe lang; das Raster löst sich über eine ganze auf */
   view-timeline: --hero block;
   .hero__stage {
     position: sticky; top: 0; height: 100svh; isolation: isolate;
@@ -161,9 +161,9 @@ main { position: relative; z-index: 1; background: var(--paper); }
     h1 > .giant {
       animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) calc(var(--d, 0s) + var(--i) * 0.1s) both, drift linear both;
       animation-timeline: auto, --hero;
-      animation-range: normal, contain 0% contain 60%;
+      animation-range: normal, contain 0% contain 100%;
     }
-    h1 { animation: blur-out linear both; animation-timeline: --hero; animation-range: contain 0% contain 50%; }
+    h1 { animation: blur-out linear both; animation-timeline: --hero; animation-range: contain 0% contain 90%; }
   }
 }
 html:has(.intro) .hero .line { --d: 2.6s; }

@@ -83,9 +83,9 @@ if (canvas) {
   };
   const draw = (now) => {
     const t = (now - t0) / 1000;
-    // Scrollfortschritt der Bühne: Punkte schrumpfen von der untersten Reihe nach oben weg
-    const b = hero.getBoundingClientRect();
-    const p = Math.min(1, Math.max(0, -b.top / (b.height - innerHeight)));
+    // Scrollfortschritt über eine Bildschirmhöhe: Punkte schrumpfen von der untersten Reihe nach oben weg.
+    // Bei der Hälfte löst sich die Bühne, die nächste Sektion kommt ins Bild, der Rest wandert mit hinaus.
+    const p = Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / innerHeight));
     const rows = h / STEP, soft = 0.3;
     ctx.clearRect(0, 0, w, h);
     if (p >= 1) { if (!reduce) raf = requestAnimationFrame(draw); return; }
