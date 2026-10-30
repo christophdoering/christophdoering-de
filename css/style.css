@@ -237,10 +237,10 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
 .skills {
   padding: var(--block) var(--gutter);
   .tabs {
-    display: flex; flex-wrap: wrap; gap: 0.2em 0.5em;
+    display: flex; flex-wrap: wrap; gap: 0.2em 0.8em;
     font: 600 clamp(1.8rem, 4vw, 4.5rem) / 1.05 var(--display);
     letter-spacing: -0.03em;
-    li + li::before { content: "/"; margin-right: 0.5em; color: var(--line); }
+    button span { font-feature-settings: "ss09" 1, "ss10" 1; } /* Schrägstrich nur im ersten Wort */
     button {
       all: unset; cursor: pointer; color: var(--mute); transition: color 0.3s;
       &:hover, &:focus-visible { color: var(--ink); }
