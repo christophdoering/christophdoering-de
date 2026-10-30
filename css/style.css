@@ -303,7 +303,7 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
   font-size: clamp(4rem, 15vw, 17rem);
   line-height: 1.3; /* Schrägstriche ragen über Versalhöhe und unter die Grundlinie */
   white-space: nowrap;
-  animation: marquee 48s linear infinite;
+  animation: marquee 22s linear infinite;
   > * { opacity: 0.35; transition: opacity 0.3s; }
   a:hover { opacity: 1; }
   > *::after { content: "/"; margin-left: 0.5em; opacity: 0.4; }
