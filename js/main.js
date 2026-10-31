@@ -116,14 +116,14 @@ if (canvas) {
     w = canvas.clientWidth; h = canvas.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const top = 90, bottom = $(".hero h1").offsetTop; // Raum über der Headline
-    k = Math.max(1, Math.min(Math.round((bottom - top) * 1.05 / 9 / STEP), Math.floor(w * 0.1 / STEP)));
+    // Größe nur aus dem Viewport, der Pfeil darf die Headline berühren
+    const top = 90, bottom = h - 40, rows = (bottom - top) / STEP;
+    k = Math.max(1, Math.min(Math.round((rows - 3) / 9), Math.floor(w * 0.1 / STEP)));
     cx = Math.round(w / 2 / STEP);
-    ay = Math.round((top + bottom) / 2 / STEP) - Math.round(4.5 * k);
+    ay = Math.round(top / STEP) + Math.floor((rows - 9 * k - 3) / 2);
     if (reduce) draw(performance.now());
   };
   size();
-  document.fonts.ready.then(size); // Headline-Position erst nach dem Laden der Schrift endgültig
   addEventListener("resize", size);
   canvas.parentElement.addEventListener("pointermove", (e) => {
     const b = canvas.getBoundingClientRect(); m.x = e.clientX - b.left; m.y = e.clientY - b.top;
