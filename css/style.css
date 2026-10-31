@@ -136,7 +136,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
     b { font-weight: 500; }
     @media (width < 640px) { display: none; }
   }
-  nav { display: flex; gap: clamp(16px, 2.5vw, 40px); font-size: 0.95rem; }
+  nav { display: flex; gap: clamp(16px, 2.5vw, 40px); font-size: 0.95rem; font-weight: 500; }
 }
 
 /* ---------- Hero mit Halftone-Raster ---------- */
@@ -196,7 +196,7 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
   gap: clamp(40px, 6vw, 120px);
   padding: var(--block) var(--gutter);
   border-top: 1px solid var(--line);
-  h2 { font-size: clamp(1.7rem, 3.2vw, 3.2rem); margin-bottom: 1.25rem; }
+  h2 { font: 600 clamp(1.7rem, 3.2vw, 3.2rem) / 1.1 var(--display); letter-spacing: -0.025em; margin-bottom: 1.25rem; }
   p:not(.label) { max-width: 36em; color: var(--mute); }
 }
 
