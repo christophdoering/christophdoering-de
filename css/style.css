@@ -75,9 +75,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
   &:hover > span { transform: translateY(-100%); }
 }
 
-/* Weich einblenden, scroll-gebunden. Alle Scroll-Timelines stehen unter :root.st – die Klasse setzt
-   main.js sofort, wenn der Browser sie kann, sonst erst wenn der Polyfill das Stylesheet umgeschrieben hat.
-   So läuft nie eine Scroll-Animation versehentlich als Zeitanimation. */
+/* Weich einblenden, scroll-gebunden (zu :root.st siehe Abschnitt Scroll-Timelines) */
 :root.st .rise {
   animation: rise linear both;
   animation-timeline: view();
@@ -131,12 +129,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
   .logo { height: clamp(22px, 2.6vw, 30px); }
   .wordmark {
     font-size: 0.8rem; line-height: 1.25; letter-spacing: 0;
-    animation: fade-in 0.8s var(--out) both; /* nach dem Intro ein */
-    :root.st & { /* beim Scrollen aus */
-      animation: fade-in 0.8s var(--out) both, fade linear both;
-      animation-timeline: auto, scroll();
-      animation-range: normal, 0 300px;
-    }
+    animation: fade-in 0.8s var(--out) both; /* nach dem Intro ein, beim Scrollen aus: siehe Scroll-Timelines */
     b { font-weight: 500; }
     @media (width < 640px) { display: none; }
   }
@@ -146,7 +139,6 @@ main { position: relative; z-index: 1; background: var(--paper); }
 /* ---------- Hero mit Halftone-Raster ---------- */
 .hero {
   height: 150svh; /* Bühne steht eine halbe Bildschirmhöhe lang; das Raster löst sich über eine ganze auf */
-  view-timeline: --hero block;
   .hero__stage {
     position: sticky; top: 0; height: 100svh; isolation: isolate;
     display: flex; flex-direction: column; justify-content: flex-end;
@@ -163,15 +155,6 @@ main { position: relative; z-index: 1; background: var(--paper); }
     }
   }
   .line { animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) both; animation-delay: calc(var(--d, 0s) + var(--i) * 0.1s); }
-  :root.st & {
-    h1 > .giant {
-      animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) both, drift linear both;
-      animation-delay: calc(var(--d, 0s) + var(--i) * 0.1s), 0s;
-      animation-timeline: auto, --hero;
-      animation-range: normal, contain 0% contain 100%;
-    }
-    h1 { animation: blur-out linear both; animation-timeline: --hero; animation-range: contain 0% contain 90%; }
-  }
 }
 html:has(.intro) .hero .line { --d: 2.6s; }
 html:has(.intro) .wordmark { animation-delay: 3.2s; }
@@ -209,7 +192,7 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
 .folios {
   padding: var(--block) var(--gutter) 0;
   > h2 { font-size: clamp(3rem, 10vw, 11rem); margin-bottom: clamp(40px, 6vw, 90px); }
-  .slot { height: 120vh; view-timeline: --slot block; }
+  .slot { height: 120vh; }
   .slot:last-child { height: auto; padding-bottom: var(--block); }
   .folio {
     position: sticky; top: 10vh;
@@ -224,13 +207,6 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
     p:not(.num):not(.tags) { max-width: 30em; color: var(--mute); font-size: clamp(1rem, 1.4vw, 1.3rem); }
     .tags { font-size: 0.85rem; color: var(--mute); }
     footer { display: flex; justify-content: space-between; align-items: end; gap: 2rem; flex-wrap: wrap; }
-  }
-  :root.st & {
-    .slot:not(:last-child) .folio {
-      animation: recede linear both;
-      animation-timeline: --slot;
-      animation-range: exit 0% exit 100%;
-    }
   }
 }
 @keyframes recede { to { scale: 0.92; opacity: 0.2; filter: blur(2px); } }
@@ -399,6 +375,34 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
 }
 
 /* ---------- Bewegung reduzieren ---------- */
+/* ---------- Scroll-Timelines ----------
+   Bewusst flach geschrieben, ohne Nesting und ohne &: Der Polyfill für Safari (flackr/scroll-timeline)
+   liest das Stylesheet mit einem einfachen Parser und findet verschachtelte Regeln nicht.
+   :root.st setzt main.js, sobald Scroll-Timelines nativ oder per Polyfill bereitstehen. */
+.hero { view-timeline-name: --hero; }
+.folios .slot { view-timeline-name: --slot; }
+:root.st .hero h1 > .giant {
+  animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) both, drift linear both;
+  animation-delay: calc(var(--d, 0s) + var(--i) * 0.1s), 0s;
+  animation-timeline: auto, --hero;
+  animation-range: normal, contain 0% contain 100%;
+}
+:root.st .hero h1 {
+  animation: blur-out linear both;
+  animation-timeline: --hero;
+  animation-range: contain 0% contain 90%;
+}
+:root.st .folios .slot:not(:last-child) .folio {
+  animation: recede linear both;
+  animation-timeline: --slot;
+  animation-range: exit 0% exit 100%;
+}
+:root.st .top .wordmark {
+  animation: fade-in 0.8s var(--out) both, fade linear both;
+  animation-timeline: auto, scroll();
+  animation-range: normal, 0 300px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; transition: none !important; }
   .intro { display: none; }
