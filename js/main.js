@@ -29,7 +29,7 @@ if (fine && cursor) {
     cursor.style.setProperty("--x", e.clientX + "px");
     cursor.style.setProperty("--y", e.clientY + "px");
   });
-  document.addEventListener("pointerover", (e) => cursor.classList.toggle("is-link", !!e.target.closest("a, .handle")));
+  document.addEventListener("pointerover", (e) => cursor.classList.toggle("is-link", !!e.target.closest("a, button, label, input, select, .handle, .dot")));
 }
 
 /* Intro: einmal pro Sitzung, Ablauf komplett in CSS */
