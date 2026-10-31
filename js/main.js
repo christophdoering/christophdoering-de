@@ -226,11 +226,13 @@ if (grid) {
   };
 }
 
-/* Ohne Scroll-Timelines (Safari): .rise blendet beim Erscheinen zeitgesteuert ein */
-if (!CSS.supports("animation-timeline: view()") && !reduce) {
-  document.documentElement.classList.add("js-rise");
-  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" });
-  $$(".rise").forEach((e) => io.observe(e));
+/* Scroll-Timelines: nativ sofort freischalten, sonst Polyfill (flackr/scroll-timeline) laden und warten,
+   bis er das Stylesheet umgeschrieben hat (neuer href → zweites load-Ereignis am <link>) */
+const on = () => document.documentElement.classList.add("st");
+if (CSS.supports("animation-timeline: view()")) on();
+else if (!reduce && $(".rise")) {
+  $('link[href^="css/style.css"]').addEventListener("load", on, { once: true });
+  document.head.append(Object.assign(document.createElement("script"), { src: "https://cdn.jsdelivr.net/npm/scroll-timeline-polyfill@1.1.0/dist/scroll-timeline.js" }));
 }
 
 /* Leistungen: Wörter als Tabs, genau ein Beispiel sichtbar */
