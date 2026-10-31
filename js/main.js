@@ -162,7 +162,7 @@ if (svg) {
   render();
 }
 
-/* Zeichenraster: Punkte verbinden, Klick auf eine Ecke macht einen Bogen, Papierkorb löscht */
+/* Zeichenraster: Punkte verbinden, Klick auf eine Ecke macht einen Bogen, Klick auf den Anfang schließt den Pfad, Papierkorb löscht */
 const grid = $(".skills .grid");
 if (grid) {
   const N = 5, STEP = 27, ns = "http://www.w3.org/2000/svg";
@@ -171,48 +171,56 @@ if (grid) {
     grid.append(el("rect", { class: "cell", x: x * STEP, y: y * STEP, width: STEP, height: STEP }));
   const stroke = el("path", { class: "stroke" });
   grid.append(stroke);
-  const pts = []; // { x, y, arc }
+  const paths = [[]]; // Pfade aus { x, y, arc }; der letzte ist offen, geschlossene tragen .closed
   const dots = [];
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
     const d = el("circle", { class: "dot", cx: x * STEP, cy: y * STEP });
     d.addEventListener("click", () => {
-      const i = pts.findIndex((p) => p.x === x && p.y === y);
-      if (i < 0) pts.push({ x, y, arc: false });
-      else if (i > 0 && i < pts.length - 1) pts[i].arc = !pts[i].arc;
+      const cur = paths.at(-1);
+      const path = paths.find((pp) => pp.some((p) => p.x === x && p.y === y));
+      const i = path?.findIndex((p) => p.x === x && p.y === y);
+      if (!path) cur.push({ x, y, arc: false });
+      else if (path === cur && i === 0 && cur.length > 2) { cur.closed = true; paths.push([]); }
+      else if (path.closed || (i > 0 && i < path.length - 1)) path[i].arc = !path[i].arc;
       render();
     });
     dots.push(d); grid.append(d);
   }
   const clear = $(".skills .clear");
-  clear.addEventListener("click", () => { pts.length = 0; render(); });
+  clear.addEventListener("click", () => { paths.splice(0, paths.length, []); render(); });
   const P = (p) => `${p.x * STEP} ${p.y * STEP}`;
+  // Ein Eckpunkt als Pfadstück: Linie zur Ecke oder, bei Bogen, Linie zum Tangentenpunkt und Bogen
+  const corner = (pts, i) => {
+    const n = pts.length, p = pts[i], prev = pts[(i - 1 + n) % n], next = pts[(i + 1) % n];
+    if (!p.arc) return { d: ` L${P(p)}`, out: p };
+    const a = { x: prev.x - p.x, y: prev.y - p.y }, b = { x: next.x - p.x, y: next.y - p.y };
+    const la = Math.hypot(a.x, a.y), lb = Math.hypot(b.x, b.y);
+    // Teilen sich zwei Bögen eine Strecke, bekommt jeder höchstens die Hälfte
+    const r = Math.min(prev.arc ? la / 2 : la, next.arc ? lb / 2 : lb);
+    const theta = Math.acos(Math.max(-1, Math.min(1, (a.x * b.x + a.y * b.y) / (la * lb))));
+    if (theta > 3.1) return { d: ` L${P(p)}`, out: p }; // fast gerade: kein Bogen
+    const p1 = { x: p.x + a.x / la * r, y: p.y + a.y / la * r }, p2 = { x: p.x + b.x / lb * r, y: p.y + b.y / lb * r };
+    const ra = r * Math.tan(theta / 2); // Tangentenradius, bei 90° gleich r
+    // Mittelpunkt liegt auf der Winkelhalbierenden; daraus die Drehrichtung
+    const bx = a.x / la + b.x / lb, by = a.y / la + b.y / lb, lbis = Math.hypot(bx, by);
+    const c = { x: p.x + bx / lbis * ra / Math.sin(theta / 2), y: p.y + by / lbis * ra / Math.sin(theta / 2) };
+    const sweep = (p1.x - c.x) * (p2.y - c.y) - (p1.y - c.y) * (p2.x - c.x) > 0 ? 1 : 0;
+    return { d: ` L${P(p1)} A${ra * STEP} ${ra * STEP} 0 0 ${sweep} ${P(p2)}`, out: p2 };
+  };
   const render = () => {
-    let d = "";
-    pts.forEach((p, i) => {
-      if (i === 0) { d = `M${P(p)}`; return; }
-      const prev = pts[i - 1], next = pts[i + 1];
-      if (!p.arc || !next) { d += ` L${P(p)}`; return; }
-      // Ecke durch Bogen ersetzen: Radius = kürzerer Schenkel
-      const a = { x: prev.x - p.x, y: prev.y - p.y }, b = { x: next.x - p.x, y: next.y - p.y };
-      const la = Math.hypot(a.x, a.y), lb = Math.hypot(b.x, b.y);
-      // Teilen sich zwei Bögen eine Strecke, bekommt jeder höchstens die Hälfte
-      const r = Math.min(prev.arc && i > 1 ? la / 2 : la, next.arc && pts[i + 2] ? lb / 2 : lb);
-      const theta = Math.acos(Math.max(-1, Math.min(1, (a.x * b.x + a.y * b.y) / (la * lb))));
-      if (theta > 3.1) { d += ` L${P(p)}`; return; } // fast gerade: kein Bogen
-      const p1 = { x: p.x + a.x / la * r, y: p.y + a.y / la * r }, p2 = { x: p.x + b.x / lb * r, y: p.y + b.y / lb * r };
-      const ra = r * Math.tan(theta / 2); // Tangentenradius, bei 90° gleich r
-      // Mittelpunkt liegt auf der Winkelhalbierenden; daraus die Drehrichtung
-      const bx = a.x / la + b.x / lb, by = a.y / la + b.y / lb, lbis = Math.hypot(bx, by);
-      const c = { x: p.x + bx / lbis * ra / Math.sin(theta / 2), y: p.y + by / lbis * ra / Math.sin(theta / 2) };
-      const sweep = (p1.x - c.x) * (p2.y - c.y) - (p1.y - c.y) * (p2.x - c.x) > 0 ? 1 : 0;
-      d += ` L${P(p1)} A${ra * STEP} ${ra * STEP} 0 0 ${sweep} ${P(p2)}`;
-    });
+    const d = paths.map((pts) => {
+      if (!pts.length) return "";
+      const n = pts.length, inner = Array.from({ length: n - 2 }, (_, k) => corner(pts, k + 1).d).join("");
+      if (!pts.closed) return `M${P(pts[0])}${inner}${n > 1 ? ` L${P(pts[n - 1])}` : ""}`;
+      // Geschlossen: am Ausgang der ersten Ecke beginnen, einmal herum, zuletzt die erste Ecke selbst
+      return `M${P(corner(pts, 0).out)}${inner}${corner(pts, n - 1).d}${corner(pts, 0).d} Z`;
+    }).join("");
     stroke.setAttribute("d", d);
     dots.forEach((dot, k) => {
-      const p = pts.find((q) => q.x === k % N && q.y === (k / N | 0));
+      const p = paths.flat().find((q) => q.x === k % N && q.y === (k / N | 0));
       dot.classList.toggle("on", !!p); dot.classList.toggle("arc", !!p?.arc);
     });
-    clear.hidden = !pts.length;
+    clear.hidden = !paths[0].length;
   };
 }
 
