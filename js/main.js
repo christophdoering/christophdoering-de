@@ -75,11 +75,11 @@ if (canvas) {
   const hero = canvas.closest(".hero");
   const STEP = 18, m = { x: -1e4, y: -1e4 };
   let w, h, k, cx, ay, raf, t0 = performance.now();
-  // Pfeil in Rasterpunkten: Schaft 3k breit und 4k hoch, Spitze 9k breit und 5k hoch, läuft auf einen Punkt zu
+  // Pfeil wie das Zeichen ↓, 9k hoch: Schaft k breit, Spitze aus zwei Diagonalen gleicher Stärke, Arme 4k lang
   const inArrow = (gx, gy) => {
     const u = Math.abs(gx - cx), v = gy - ay;
     if (v < 0 || v > 9 * k) return false;
-    return v < 4 * k ? u <= 1.5 * k : u <= 4.5 * k * (9 * k - v) / (5 * k) + 0.01;
+    return u <= k / 2 + 0.01 || (v >= 5 * k && Math.abs(u - (9 * k - v)) <= 0.71 * k);
   };
   const draw = (now) => {
     const t = (now - t0) / 1000;
@@ -96,10 +96,10 @@ if (canvas) {
       for (let gx = 0, x = STEP / 2; x < w; gx++, x += STEP) {
         let r;
         if (inArrow(gx, gy)) {
-          // Puls, der nach unten durch den Pfeil läuft
-          const p = reduce ? 0.5 : (1 + Math.sin(t * 3 - gy * 0.45)) / 2;
+          // Ein Puls, so lang wie der Pfeil, läuft nach unten durch
+          const p = reduce ? 0.5 : (1 + Math.sin(t * 2.4 - (gy - ay) / (9 * k) * 6.3)) / 2;
           const near = Math.exp(-((x - m.x) ** 2 + (y - m.y) ** 2) / 40000);
-          r = STEP * (0.14 + 0.18 * p * p * p) + near * 6;
+          r = STEP * (0.1 + 0.2 * p * p * p) + near * 6; // in Ruhe kaum mehr als das Raster
         } else {
           const wave = reduce ? 0.5 : 0.5 + 0.5 * Math.sin(x * 0.01 + y * 0.013 + t);
           r = 1.2 * (0.4 + 0.6 * wave);
