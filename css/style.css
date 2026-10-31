@@ -272,6 +272,56 @@ html:has(.intro) .wordmark { animation-delay: 3.2s; }
     .dot.on { fill: currentColor; stroke: currentColor; }
     .dot.arc { fill: var(--paper); stroke: currentColor; stroke-width: 1.5; }
   }
+  /* Filterleiste: echte Formularelemente, Zurücksetzen über den Browser */
+  .ui {
+    aspect-ratio: auto; max-width: 560px; display: grid; gap: 0.9rem;
+    font-size: 0.85rem; font-weight: 500; accent-color: var(--ink);
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .row > * { min-height: 2.4rem; }
+    input, select, button { font: inherit; color: inherit; background: none; border: 1px solid var(--line); border-radius: 999px; }
+    input:focus-visible, select:focus-visible, button:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+    .switch {
+      display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+      input { appearance: none; margin: 0; width: 2.8rem; height: 1.5rem; position: relative; border-color: var(--mute); cursor: pointer;
+        &::before { content: ""; position: absolute; inset: 3px auto 3px 3px; aspect-ratio: 1; border-radius: 50%; background: currentColor; transition: translate 0.3s var(--out); }
+        &:checked::before { translate: 1.3rem 0; }
+      }
+      span { transition: color 0.3s; }
+      &:has(:checked) span:first-child, &:not(:has(:checked)) span:last-child { color: var(--mute); }
+    }
+    .search { flex: 1 1 10rem; position: relative; display: block;
+      input { width: 100%; padding: 0.55rem 2.4rem 0.55rem 1rem; }
+      svg { position: absolute; right: 0.9rem; top: 50%; translate: 0 -50%; width: 1rem; pointer-events: none; }
+    }
+    .sel { flex: 1 1 8rem; position: relative; display: block;
+      select { appearance: none; width: 100%; padding: 0.55rem 2.2rem 0.55rem 1rem; cursor: pointer; }
+      svg { position: absolute; right: 0.8rem; top: 50%; translate: 0 -50%; width: 1rem; pointer-events: none; }
+    }
+    .chips > span { color: var(--mute); min-height: 0; }
+    .chip { min-height: 0; cursor: pointer;
+      input { position: absolute; opacity: 0; }
+      span { display: inline-block; padding: 0.4rem 0.9rem; border: 1px solid var(--line); border-radius: 999px; transition: background 0.2s, color 0.2s; }
+      &:hover span { border-color: var(--mute); }
+      &:has(:checked) span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+      &:has(:focus-visible) span { outline: 1px solid currentColor; outline-offset: 2px; }
+    }
+    .range { display: flex; align-items: center; gap: 0.6rem; flex: 1 1 12rem; }
+    .pill {
+      flex: 1; display: grid; grid-template-columns: 2.2rem 1fr 2.2rem; align-items: center;
+      height: 2.4rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 0.3rem;
+      output { text-align: center; }
+      .bar, input { grid-area: 1 / 2; width: 100%; }
+      .bar { height: 2px; background: var(--line); position: relative;
+        &::before { content: ""; position: absolute; inset: 0 calc(100% - var(--b, 100%)) 0 var(--a, 0%); background: currentColor; }
+      }
+      input { appearance: none; margin: 0; height: 100%; border: 0; pointer-events: none;
+        &::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper); pointer-events: auto; cursor: grab; }
+        &::-moz-range-thumb { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--paper); pointer-events: auto; cursor: grab; }
+        &:active::-webkit-slider-thumb { cursor: grabbing; }
+      }
+    }
+    [type="reset"] { padding: 0.55rem 1rem; cursor: pointer; transition: border-color 0.2s; &:hover { border-color: var(--ink); } }
+  }
   .clear {
     position: absolute; right: 0; top: -44px; width: 36px; height: 36px; padding: 8px;
     background: none; border: 0; color: var(--mute); cursor: pointer;

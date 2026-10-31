@@ -141,9 +141,9 @@
       <ul class="tabs" role="tablist">
         <li><button role="tab" aria-selected="true" aria-controls="s-zeichen"><span>Zeichensysteme</span></button></li>
         <li><button role="tab" aria-selected="false" aria-controls="s-cd"><span>Corporate</span> Design</button></li>
-        <li><button role="tab" aria-selected="false" aria-controls="s-ui"><span>Interfaces</span></button></li>
+        <li><button role="tab" aria-selected="false" aria-controls="s-ui" data-mode="ui"><span>Interfaces</span></button></li>
         <li><button role="tab" aria-selected="false" aria-controls="s-editorial"><span>Editorial</span></button></li>
-        <li><button role="tab" aria-selected="false" aria-controls="s-web"><span>Websites</span></button></li>
+        <li><button role="tab" aria-selected="false" aria-controls="s-ui" data-mode="web"><span>Websites</span></button></li>
         <li><button role="tab" aria-selected="false" aria-controls="s-cd"><span>Schriftgestaltung</span></button></li>
         <li><button role="tab" aria-selected="false" aria-controls="s-fac"><span>Design</span> Facilitation</button></li>
       </ul>
@@ -172,13 +172,34 @@
         <p>Logos, Wortmarken, Schriften: Formen aus wenigen Punkten, die genau sitzen. Und das System drumherum.<br><small>An den Griffen ziehen.</small></p>
       </div>
       <div class="panel" id="s-ui" role="tabpanel" hidden>
-        <p>Benutzeroberflächen für Maschinen, Geräte und Web. Konzept, UI und Designsystem, mit Blick auf Plattformregeln und Marke.</p>
+        <form class="sample ui" aria-label="Beispiel einer Filterleiste">
+          <div class="row">
+            <label class="switch"><span>Web</span><input type="checkbox" name="mode" role="switch" aria-label="Zwischen Web und UI umschalten"><span>UI</span></label>
+            <label class="search"><input type="search" name="q" placeholder="Websites durchsuchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></label>
+          </div>
+          <div class="row">
+            <label class="sel"><select name="platform" aria-label="Plattform"><option value="">Plattform</option><option>Browser</option><option>iOS und Android</option><option>Gerät</option><option>Maschine</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></label>
+            <label class="sel"><select name="scope" aria-label="Umfang"><option value="">Umfang</option><option>Konzept</option><option>Prototyp</option><option>Designsystem</option><option>Umsetzung</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></label>
+          </div>
+          <div class="row chips">
+            <span>Ton</span>
+            <label class="chip"><input type="checkbox" name="t" checked><span>Ruhig</span></label>
+            <label class="chip"><input type="checkbox" name="t"><span>Klar</span></label>
+            <label class="chip"><input type="checkbox" name="t"><span>Dicht</span></label>
+            <label class="chip"><input type="checkbox" name="t"><span>Verspielt</span></label>
+            <label class="chip"><input type="checkbox" name="t"><span>Streng</span></label>
+            <label class="chip"><input type="checkbox" name="t"><span>Warm</span></label>
+          </div>
+          <div class="row">
+            <div class="range"><span>Spalten</span><div class="pill"><output>4</output><span class="bar"></span><input type="range" name="c0" min="1" max="16" value="4" aria-label="Spalten von"><input type="range" name="c1" min="1" max="16" value="12" aria-label="Spalten bis"><output>12</output></div></div>
+            <div class="range"><span>Abstand</span><div class="pill"><output>8</output><span class="bar"></span><input type="range" name="g0" min="0" max="64" step="4" value="8" aria-label="Abstand von"><input type="range" name="g1" min="0" max="64" step="4" value="40" aria-label="Abstand bis"><output>40</output></div></div>
+            <button type="reset">Zurücksetzen</button>
+          </div>
+        </form>
+        <p>Benutzeroberflächen für Web, Geräte und Maschinen. Konzept, UI und Designsystem, mit Blick auf Plattformregeln und Marke. Entwurf und Umsetzung in HTML, CSS und JavaScript: schlank, schnell, barrierearm. Wie diese Seite.<br><small>Umschalten, filtern, an den Reglern ziehen.</small></p>
       </div>
       <div class="panel" id="s-editorial" role="tabpanel" hidden>
         <p>Kataloge, Magazine, Bücher. Raster, Rhythmus und Typografie, die lange tragen.</p>
-      </div>
-      <div class="panel" id="s-web" role="tabpanel" hidden>
-        <p>Entwurf und Umsetzung in HTML, CSS und JavaScript. Schlank, schnell, barrierearm. Wie diese Seite.</p>
       </div>
       <div class="panel" id="s-fac" role="tabpanel" hidden>
         <p>Ich begleite Teams: Prozesse etablieren, Entscheidungen vorbereiten, Lösungen gemeinsam entwerfen.</p>

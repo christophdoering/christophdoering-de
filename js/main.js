@@ -217,9 +217,33 @@ if (grid) {
 }
 
 /* Leistungen: Wörter als Tabs, genau ein Beispiel sichtbar */
-$$(".skills [role=tab]").forEach((tab) =>
-  tab.addEventListener("click", () => {
-    $$(".skills [role=tab]").forEach((t) => t.setAttribute("aria-selected", t === tab));
-    $$(".skills .panel").forEach((p) => (p.hidden = p.id !== tab.getAttribute("aria-controls")));
-  })
-);
+const selectTab = (tab) => {
+  $$(".skills [role=tab]").forEach((t) => t.setAttribute("aria-selected", t === tab));
+  $$(".skills .panel").forEach((p) => (p.hidden = p.id !== tab.getAttribute("aria-controls")));
+};
+$$(".skills [role=tab]").forEach((tab) => tab.addEventListener("click", () => {
+  selectTab(tab);
+  if (tab.dataset.mode) { ui.mode.checked = tab.dataset.mode === "ui"; ui.mode.dispatchEvent(new Event("input", { bubbles: true })); }
+}));
+
+/* Filterleiste: Schalter Web/UI folgt den Tabs und umgekehrt, Doppelschieber färben ihren Balken */
+const ui = $(".skills .ui");
+if (ui) {
+  const fill = (pill) => {
+    const [lo, hi] = $$("input", pill), outs = $$("output", pill);
+    if (+lo.value > +hi.value) [lo.value, hi.value] = [hi.value, lo.value];
+    const pct = (i) => `${((i.value - i.min) / (i.max - i.min)) * 100}%`;
+    pill.style.setProperty("--a", pct(lo)); pill.style.setProperty("--b", pct(hi));
+    outs[0].value = lo.value; outs[1].value = hi.value;
+  };
+  const sync = () => {
+    ui.q.placeholder = ui.mode.checked ? "Interfaces durchsuchen" : "Websites durchsuchen";
+    const tab = $(`.skills [data-mode="${ui.mode.checked ? "ui" : "web"}"]`);
+    if (tab.getAttribute("aria-selected") !== "true") selectTab(tab);
+    $$(".pill", ui).forEach(fill);
+  };
+  ui.addEventListener("input", sync);
+  ui.addEventListener("reset", () => requestAnimationFrame(sync));
+  ui.addEventListener("submit", (e) => e.preventDefault());
+  sync();
+}
