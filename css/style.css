@@ -152,7 +152,7 @@ main { position: relative; z-index: 1; background: var(--paper); }
   h1 {
     display: flex; flex-direction: column; align-items: flex-start;
     > .giant { font-size: clamp(2.8rem, 10vw, 13rem); line-height: 1; }
-    > .giant + .giant { padding-left: 0.42em; --drift: 5%; }
+    > .giant + .giant { --drift: 5%; }
     .hero__name {
       font: 300 clamp(1.4rem, 2.6vw, 2.6rem) / 1.1 var(--display);
       letter-spacing: -0.02em; margin-bottom: 0.6em;
