@@ -176,7 +176,7 @@ if (grid) {
   const paths = [[]]; // Pfade aus { x, y, arc }; der letzte ist offen, geschlossene tragen .closed
   const dots = [];
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const d = el("circle", { class: "dot", cx: x * STEP, cy: y * STEP });
+    const d = el("circle", { class: "dot", cx: x * STEP, cy: y * STEP, r: 2.2 }); // r als Attribut: Safari kennt r nicht als CSS
     d.addEventListener("click", () => {
       const cur = paths.at(-1);
       const path = paths.find((pp) => pp.some((p) => p.x === x && p.y === y));
@@ -224,6 +224,13 @@ if (grid) {
     });
     clear.hidden = !paths[0].length;
   };
+}
+
+/* Ohne Scroll-Timelines (Safari): .rise blendet beim Erscheinen zeitgesteuert ein */
+if (!CSS.supports("animation-timeline: view()") && !reduce) {
+  document.documentElement.classList.add("js-rise");
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -10% 0px" });
+  $$(".rise").forEach((e) => io.observe(e));
 }
 
 /* Leistungen: Wörter als Tabs, genau ein Beispiel sichtbar */

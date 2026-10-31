@@ -83,6 +83,11 @@ main { position: relative; z-index: 1; background: var(--paper); }
     animation-range: entry 10% entry 60%;
   }
 }
+@supports not (animation-timeline: view()) {
+  /* Safari: JavaScript setzt .is-in beim Erscheinen; ohne JavaScript bleibt alles sichtbar */
+  .js-rise .rise:not(.is-in) { opacity: 0; }
+  .rise.is-in { animation: rise 1s var(--out) both; }
+}
 @keyframes rise { from { opacity: 0; translate: 0 20%; filter: blur(10px); } }
 @keyframes blur-in { from { opacity: 0; translate: 0 20%; filter: blur(10px); } }
 @keyframes drift { to { transform: translateX(var(--drift, -5%)); } }
@@ -158,10 +163,11 @@ main { position: relative; z-index: 1; background: var(--paper); }
       letter-spacing: -0.02em; margin-bottom: 0.6em;
     }
   }
-  .line { animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) calc(var(--d, 0s) + var(--i) * 0.1s) both; }
+  .line { animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) both; animation-delay: calc(var(--d, 0s) + var(--i) * 0.1s); }
   @supports (animation-timeline: view()) {
     h1 > .giant {
-      animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) calc(var(--d, 0s) + var(--i) * 0.1s) both, drift linear both;
+      animation: blur-in 1s cubic-bezier(0.215, 0.61, 0.355, 1) both, drift linear both;
+      animation-delay: calc(var(--d, 0s) + var(--i) * 0.1s), 0s;
       animation-timeline: auto, --hero;
       animation-range: normal, contain 0% contain 100%;
     }
