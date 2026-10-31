@@ -76,11 +76,11 @@ if (canvas) {
   const STEP = 18, m = { x: -1e4, y: -1e4 };
   let w, h, k, cx, ay, raf, t0 = performance.now();
   // Pfeil wie das Zeichen ↓: Schaft k+2 breit, Spitze aus zwei Diagonalen gleicher Stärke, Arme 4k lang,
-  // darunter zwei Zeilen, die auf einen Punkt zulaufen (drei Punkte, dann einer)
+  // darunter drei Zeilen, die auf einen Punkt zulaufen (drei, drei, einer)
   const inArrow = (gx, gy) => {
     const u = Math.abs(gx - cx), v = gy - ay;
-    if (v < 0 || v > 9 * k + 2) return false;
-    if (v > 9 * k) return u <= 9 * k + 1 - v;
+    if (v < 0 || v > 9 * k + 3) return false;
+    if (v > 9 * k) return u <= Math.min(1, 9 * k + 2 - v);
     return u <= k / 2 + 1.01 || (v >= 5 * k && Math.abs(u - (9 * k - v)) <= 0.71 * k);
   };
   const draw = (now) => {
