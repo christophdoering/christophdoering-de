@@ -255,14 +255,22 @@ if (ui) {
     pill.style.setProperty("--a", pct(lo)); pill.style.setProperty("--b", pct(hi));
     outs[0].value = lo.value; outs[1].value = hi.value;
   };
+  let mode; // zuletzt gesehener Schalterstand, damit die Voreinstellung nur beim Umschalten greift
   const sync = () => {
-    ui.q.placeholder = ui.mode.checked ? "Interfaces durchsuchen" : "Websites durchsuchen";
-    const tab = $(`.skills [data-mode="${ui.mode.checked ? "ui" : "web"}"]`);
+    const isUi = ui.mode.checked;
+    if (isUi !== mode) { // Voreinstellung je Seite: Web → Browser, UI → Designsystem und „Klar“
+      mode = isUi;
+      ui.platform.value = isUi ? "" : "Browser";
+      ui.scope.value = isUi ? "Designsystem" : "";
+      $$(".chip input", ui)[1].checked = isUi;
+    }
+    ui.q.placeholder = isUi ? "Interfaces durchsuchen" : "Websites durchsuchen";
+    const tab = $(`.skills [data-mode="${isUi ? "ui" : "web"}"]`);
     if (tab.getAttribute("aria-selected") !== "true") selectTab(tab);
     $$(".pill", ui).forEach(fill);
   };
   ui.addEventListener("input", sync);
-  ui.addEventListener("reset", () => requestAnimationFrame(sync));
+  ui.addEventListener("reset", () => requestAnimationFrame(() => { mode = undefined; sync(); }));
   ui.addEventListener("submit", (e) => e.preventDefault());
   sync();
 }
