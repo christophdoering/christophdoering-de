@@ -270,7 +270,7 @@ if (ui) {
     $$(".pill", ui).forEach(fill);
   };
   ui.addEventListener("input", sync);
-  ui.addEventListener("reset", () => requestAnimationFrame(() => { mode = undefined; sync(); }));
+  ui.addEventListener("reset", () => setTimeout(() => { mode = undefined; sync(); })); // nach dem Zurücksetzen der Werte, auch im Hintergrund-Tab
   ui.addEventListener("submit", (e) => e.preventDefault());
   sync();
 }
